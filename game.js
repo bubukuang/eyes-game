@@ -170,7 +170,7 @@ function gameLoop(timestamp) {
         if (blinkTimer > BLINK_FILTER_TIME) {
             if (!isCharging) {
                 isCharging = true;
-                //AudioSys.startCharging(); 
+                AudioSys.startCharging(); 
                 chargeBarContainer.style.display = 'block';
             }
             if (chargeTimer < FULL_CHARGE_TIME) {
