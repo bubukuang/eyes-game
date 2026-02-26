@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye-Iaido: 字母斬 (修正版)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            user-select: none;
+        }
+
+        /* 遊戲主畫面 */
+        canvas#gameCanvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* --- 攝影機容器 --- */
+        #video-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 240px; /* 加大顯示區域 */
+            height: 180px;
+            z-index: 2;
+            opacity: 0.9;
+            border: 2px solid #555;
+            border-radius: 10px;
+            /* 鏡像翻轉：包含影片和覆蓋層 */
+            transform: scaleX(-1); 
+            background: #000;
+            pointer-events: none;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0; left: 0;
+        }
+
+        /* 覆蓋在攝影機上的畫布，用來畫鼻尖點 */
+        canvas#overlayCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2; 
+        }
+
+        /* UI 層 */
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            pointer-events: none;
+        }
+
+        #start-screen {
+            background: rgba(30, 30, 30, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            border: 1px solid #444;
+            max-width: 500px;
+            pointer-events: auto;
+        }
+
+        h1 { margin: 0 0 20px 0; color: #ffeb3b; text-shadow: 0 0 10px #ffeb3b; }
+        
+        .instructions {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            color: #ddd;
+            line-height: 1.6;
+        }
+
+        button {
+            background: #00e676;
+            border: none;
+            padding: 15px 50px;
+            color: #000;
+            font-size: 22px;
+            cursor: pointer;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+        button:hover { transform: scale(1.05); background: #69f0ae; }
+        button:disabled { background: #555; color: #888; transform: none; }
+
+        #status-text { margin-top: 15px; color: #ff9800; font-weight: bold; min-height: 20px;}
+        
+        #hud {
+            position: absolute; top: 30px; left: 30px; font-size: 32px; font-weight: bold; 
+            display: none; z-index: 4; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); color: #fff;
+        }
+
+        #charge-bar-container {
+            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+            width: 350px; height: 15px; background: #333; border-radius: 10px; border: 2px solid #666;
+            display: none; z-index: 4; overflow: hidden;
+        }
+        #charge-bar {
+            width: 0%; height: 100%; background: linear-gradient(90deg, #2196f3, #00e676);
+            box-shadow: 0 0 15px #00e676;
+        }
+    </style>
+    
+    <!-- 引入 MediaPipe FaceMesh -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="video-container">
+        <video id="inputVideo" playsinline autoplay muted></video>
+        <canvas id="overlayCanvas"></canvas>
+    </div>
+
+    <div id="ui-layer">
+        <div id="start-screen">
+            <h1>Eye-Iaido: 字母斬</h1>
+            <div class="instructions">
+                📍 <b>鎖定：</b>鼻尖控制準星，移至目標附近。<br>
+                💥 <b>擊破：</b>目標物體積已加大，更容易看清。<br>
+                😑 <b>蓄力：</b>閉眼 2 秒蓄力，聆聽音效變化。<br>
+                ⚔️ <b>斬擊：</b>瞬間開眼，範圍內物體全數斬碎。
+            </div>
+            <button id="start-btn">授權相機</button>
+            <div id="status-text">準備...</div>
+        </div>
+        <div id="charge-bar-container"><div id="charge-bar"></div></div>
+    </div>
+    <div id="hud">Score: <span id="score">0</span></div>
+
+    <!-- 引用下方的 JS -->
+    <script src="game.js"></script>
+</body>
+</html>
