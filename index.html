@@ -27,8 +27,9 @@
         /* --- 攝影機容器 --- */
         #video-container {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 50%;              /* 垂直置中 */
+            left: 20px;            /* 靠左邊 */
+            transform: translateY(-50%) scaleX(-1); /* 垂直置中 + 鏡像翻轉 */
             width: 240px; /* 加大顯示區域 */
             height: 180px;
             z-index: 2;
@@ -36,7 +37,7 @@
             border: 2px solid #555;
             border-radius: 10px;
             /* 鏡像翻轉：包含影片和覆蓋層 */
-            transform: scaleX(-1); 
+            /*transform: scaleX(-1); */
             background: #000;
             pointer-events: none;
             overflow: hidden;
